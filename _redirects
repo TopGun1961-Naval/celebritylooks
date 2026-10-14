@@ -1,0 +1,3 @@
+/celebrity/*  /celebrities/:splat  301
+/look/*  /looks/:splat  301
+/event/*  /events/:splat  301

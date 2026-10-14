@@ -9,7 +9,7 @@ function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){ ret
 var ROOT=document.documentElement.getAttribute("data-root")||"/";
 
 /* photos that fail to load (blocked or offline) fall back to the tinted frame instead of a broken-image icon */
-$$(".ph img").forEach(function(im){ function f(){ im.style.visibility="hidden"; } if(im.complete&&!im.naturalWidth) f(); else im.addEventListener("error",f); });
+$$(".ph img, .lc-prod img, .pimg img, .mono img").forEach(function(im){ function f(){ var p=im.closest(".lc-prod"); if(p) p.style.display="none"; else im.style.visibility="hidden"; } im.addEventListener("error",f); if(im.complete&&!im.naturalWidth&&im.loading!=="lazy"&&im.currentSrc) f(); });
 
 /* ---------- theme ---------- */
 var tb=$("#theme");
@@ -174,4 +174,27 @@ $$(".vp").forEach(function(fig){
   }
 });
 $$("[data-seek]").forEach(function(b){ b.onclick=function(){ var v=$(".vp video"), st=$(".vp .vp-start"); if(!v) return; v.currentTime=+b.dataset.seek; if(st) st.hidden=true; v.play().catch(function(){}); window.scrollTo({top:$(".vp").getBoundingClientRect().top+window.scrollY-90}); }; });
+})();
+/* Saved looks (kept in this browser) and copy-link buttons */
+(function(){
+var KEY="cl-saved", ROOT=document.documentElement.getAttribute("data-root")||"/";
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch(e){ return []; } }
+function store(a){ try{ localStorage.setItem(KEY,JSON.stringify(a)); }catch(e){} }
+function href(slug){ return ROOT+"looks/"+slug+"/"+(ROOT.charAt(0)==="/"?"":"index.html"); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+Array.prototype.forEach.call(document.querySelectorAll("[data-save]"),function(b){
+  var slug=b.getAttribute("data-save"), lbl=b.querySelector("span");
+  function sync(){ var on=load().some(function(x){ return x.s===slug; }); b.setAttribute("aria-pressed",on?"true":"false"); if(lbl) lbl.textContent=on?"Saved":"Save look"; }
+  b.addEventListener("click",function(){ var a=load(), on=a.some(function(x){ return x.s===slug; });
+    a=on? a.filter(function(x){ return x.s!==slug; }) : [{s:slug,t:b.getAttribute("data-title"),d:new Date().toISOString().slice(0,10)}].concat(a); store(a); sync(); });
+  sync();
+});
+var list=document.getElementById("saved-list");
+if(list){ var a=load(), empty=document.getElementById("saved-empty");
+  if(a.length){ empty.hidden=true; list.innerHTML=a.map(function(x){ return '<div class="nitem"><time>Saved '+esc(x.d||"")+'</time><div><h3><a href="'+href(x.s)+'">'+esc(x.t)+'</a></h3><p><button type="button" class="linkbtn" data-unsave="'+esc(x.s)+'">Remove</button></p></div></div>'; }).join("");
+    list.addEventListener("click",function(e){ var s=e.target.getAttribute&&e.target.getAttribute("data-unsave"); if(!s) return; store(load().filter(function(x){ return x.s!==s; })); e.target.closest(".nitem").remove(); if(!load().length) empty.hidden=false; }); } }
+Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"),function(b){
+  b.addEventListener("click",function(){ var u=b.getAttribute("data-copy"), done=function(){ b.textContent="Link copied"; setTimeout(function(){ b.textContent="Copy link"; },2000); };
+    if(navigator.clipboard) navigator.clipboard.writeText(u).then(done,function(){ prompt("Copy this link:",u); }); else prompt("Copy this link:",u); });
+});
 })();

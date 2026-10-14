@@ -1,0 +1,3 @@
+# ads.txt for celebritylooks.com
+# Replace the line below with the exact line your ad network gives you, then remove the leading #.
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

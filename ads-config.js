@@ -1,7 +1,7 @@
 /* Ad settings for CelebrityLooks.com: the one place to change ads. See DEPLOY.md, "Advertising and video".
    Start with "house" (our own promos); switch to "adsense" once approved, then "managed" for Journey by Mediavine or Raptive. */
 window.CL_ADS = {
-  mode: "preview",               // "house" | "adsense" | "gam" | "managed" | "preview" | "off"
+  mode: "house",               // "house" | "adsense" | "gam" | "managed" | "preview" | "off"
   adsenseClient: "",        // e.g. "ca-pub-1234567890123456"
   adsenseSlots: { leader: "", inc: "", rect: "", anchor: "" },
   gam: { network: "", units: { leader: "", inc: "", rect: "", anchor: "" } },
